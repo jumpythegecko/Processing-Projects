@@ -1,0 +1,86 @@
+
+boolean mpressed = false;
+boolean open = true;
+Ball b1 = new Ball(0,100,150);
+Ball b2 = new Ball(255,300,400);
+
+void setup(){
+  size(600,600);
+}
+
+void draw(){
+  background(150);
+  fill(0);
+  stroke(0);
+  for(int i=1;i<6;i++){
+    line(0,(i*100),600,(i*100));
+  }
+  for(int i=1;i<6;i++){
+    line((i*100),0,(i*100),600);
+  }
+  b1.update();
+  b1.draw();
+  b2.update();
+  b2.draw();
+}
+public class Ball {
+  int x;
+  int y;
+  int z;
+  int qx;
+  int qy;
+  color c;
+  boolean inside = false;
+
+  Ball(color tc, int tempx, int tempy) {
+    x = tempx;
+    y = tempy;
+    c = tc;
+  }
+
+  void draw() {
+    fill(c);
+    stroke(c);
+    ellipseMode(CENTER);
+    ellipse(x, y, 75, 75);
+  }
+
+  void update() {
+    qx = abs(mouseX-x);
+    qy = abs(mouseY-y);
+    if(qx<=(75/2) && qy<=(75/2)  && open == true){
+      inside = true;
+      open = false;
+    }
+    if (mpressed == true && inside == true) {
+      x = mouseX;
+      y = mouseY;
+    }
+    if (mpressed == false) {
+      inside = false;
+      open = true;
+      for (int i = 1; i<7; i++) {
+        z = (i*100)-50;
+        if (x>(z-50) && x<=(z+50)) {
+          x = z;
+        }
+      }
+      for (int i = 1; i<7; i++) {
+        z = (i*100)-50;
+        if (y>(z-50) && y<=(z+50)) {
+          y = z;
+        }
+      }
+    }
+  }
+}
+
+
+void mousePressed() {
+  if (mpressed == false) {
+    mpressed = true;
+  } else {
+    mpressed = false;
+    open = true;
+  }
+}
