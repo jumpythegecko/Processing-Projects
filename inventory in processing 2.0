@@ -1,0 +1,318 @@
+
+/*
+controls: 
+w/W = move up
+s/S = move down
+a/A = move left
+d/D = move right
+e/E = access inventory
+p/P = respawn items
+*/
+
+boolean mpressed = false;     //is the mouse presses?
+boolean open = true;     //is the mouse curently carining an object?
+boolean pause = false;     //is the "game" paused
+Ball b1 = new Ball(0, 50, 50, 1);     //defines all the items in the inventory, all of them are just circles rt now
+Ball b2 = new Ball(50, 300, 400, 1);
+Ball b3 = new Ball(100, 300, 500, 1);
+Ball b4 = new Ball(175, 300, 300, 1);
+Ball b5 = new Ball(200, 300, 200, 1);
+Ball b6 = new Ball(100, 100, 200, 1);
+Ball b7 = new Ball(175, 100, 300, 1);
+Ball b8 = new Ball(250, 100, 400, 1);
+int px = 300;     //player location
+int py = 300;
+boolean[] isTaken = new boolean[36];     //is that individual square taken? (currently this is not working)
+boolean[] slot = new boolean[6];     //is there something in the 6 hotbar slots? 
+boolean u = false;     //for movind up
+boolean d = false;     //down
+boolean l = false;     //left
+boolean r = false;     //and right
+int Action = 0;      //what action to take when the item is used. 
+/*
+Currently, only actions 1 and 2 are defined, and they both do the same thing.
+They both create a 3 second force feild around the player. 
+*/
+int m = 0;     //milliseconds
+
+
+
+void setup() {
+  size(600, 600);     //this will have a size of 600 squared
+  b1.update();     //places the 8 balls
+  b2.update();
+  b3.update();
+  b4.update();
+  b5.update();
+  b6.update();
+  b7.update();
+  b8.update();
+  for(int i=0;i<36;i++){     //sets the whole isTaken[] array to false
+    isTaken[i] = false;
+  }
+  for(int i=0;i<6;i++){     //sets all 6 hotbal values to false
+    slot[i] = false;
+  }
+}
+
+void draw() {
+  background(150);     //the background is grey
+  fill(0);     //draw everything black
+  stroke(0);
+  line(0, 0, 600, 0);     //draw the 4 lines on the outside of the screen
+  line(599, 0, 599, 600);
+  line(0, 0, 0, 600);
+  line(0, 599, 600, 599);
+  if (pause == true) {     //if the game is paused
+    fill(0);     //draw things black
+    stroke(0);
+    for (int i=1; i<6; i++) {     //draw 5 horizontal lines
+      line(0, (i*100), 600, (i*100));
+    }
+    for (int i=1; i<6; i++) {     //draw 5 vertical lines
+      line((i*100), 0, (i*100), 600);
+    }
+    b1.update();     //update and draw every item
+    b1.draw();
+    b2.update();
+    b2.draw();
+    b3.update();
+    b3.draw();
+    b4.update();
+    b4.draw();
+    b5.update();
+    b5.draw();
+    b6.update();
+    b6.draw();
+    b7.update();
+    b7.draw();
+    b8.update();
+    b8.draw();
+  }
+
+  if (pause == false) {     //if the ame is not paused
+    fill(0);     //draw things black
+    stroke(0);
+    rectMode(CENTER);     //draw rectangles with the point at the center instead of the corner
+    rect(px, py, 30, 30);     //draw the player character
+    line(0, 100, 600, 100);     //draw one horizontal line
+    for (int i=1; i<6; i++) {     //draw 5 short vertical lines
+      line((i*100), 0, (i*100), 100);
+    }
+    b1.draw();     //draw all the items(in the class it only gets drawed if it is in the hotbar)
+    b2.draw();
+    b3.draw();
+    b4.draw();
+    b5.draw();
+    b6.draw();
+    b7.draw();
+    b8.draw();
+    if(Action>0){     //if action is graeter than 0, because i made 0 the neutral number
+      if(Action == 1 && millis()-m<3000){     //do this if the action is 1
+        noFill();
+        ellipse(px,py,75,75);
+        if(millis()-m>=3000){
+          Action = 0;     //reset the action value when this action is over so it only happens when pressed and not continually
+        }
+      }
+      if(Action == 2){     //do this if the action is 2
+        noFill();
+        ellipse(px,py,75,75);
+        if(millis()-m>=3000){
+          Action = 0;
+        }
+      }
+      if(Action == 3){     //do this if the action is 3
+        
+        Action = 0;
+      }
+      if(Action == 4){     //do this if the action is 4
+        
+        Action = 0;
+      }
+      if(Action == 5){     //do this if the action is 5
+        
+        Action = 0;
+      }
+    }
+  }
+  if (u==true) {     //move up if the up boolean is true
+    py = py - 6;
+  }
+  if (d==true) {     //move down
+    py = py + 6;
+  }
+  if (l==true) {     //move left
+    px = px - 6;
+  }
+  if (r==true) {     //movew right
+    px = px + 6;
+  }
+}
+
+void keyPressed() {     //if a key is pressed
+  if (key == 'e'|| key == 'E') {     //e is the inventory key
+    if (pause == false) {     //if you ar in inventory, it exits inventory, if you are not in inventory, it enters inventory
+      pause = true;
+    } else {
+      pause = false;
+    }
+  }
+  if(keyCode == '1' && isTaken[0] == true){     //number keys for using the hotbar items
+    slot[0] = true;
+  }
+  if(keyCode == '2' && isTaken[1] == true){     //if the coresponding key is placed and there is an item in that slot, it activates the action fo the item in that slot
+    slot[1] = true;
+  }
+  if(keyCode == '3' && isTaken[2] == true){
+    slot[2] = true;
+  }
+  if(keyCode == '4' && isTaken[3] == true){
+    slot[3] = true;
+  }
+  if(keyCode == '5' && isTaken[4] == true){
+    slot[4] = true;
+  }
+  if(keyCode == '6' && isTaken[5] == true){
+    slot[5] = true;
+  }
+  if (pause == false) {
+    if (key == 'w'|| key == 'W') {     //moves the character if it is not paused
+      u = true;
+    }
+    if (key == 'a'|| key == 'A') {
+      l = true;
+    }
+    if (key == 's'|| key == 'S') {
+      d = true;
+    }
+    if (key == 'd'|| key == 'D') {
+      r = true;
+    }
+  }
+}
+
+void keyReleased() {
+  if (key == 'w'|| key == 'W') {     //releasing on of the movement keys will stop the character moving in that direction
+    u = false;
+  }
+  if (key == 'a'|| key == 'A') {
+    l = false;
+  }
+  if (key == 's'|| key == 'S') {
+    d = false;
+  }
+  if (key == 'd'|| key == 'D') {
+    r = false;
+  }
+}
+public class Ball {
+  int x;     //player location
+  int y;
+  int z;
+  int qx;     //coords for evalusting what square the item is in
+  int qy;
+  color c;     //the color of the item
+  boolean inside = false;     //is the mouse inside the item?/is the mouse hovering over the item?
+  int place;     //place value of the item, what slot it is in, range is 0-35
+  int mousePlace;     //the slot the mouse is in
+  int mX;     //temp mouse location
+  int mY;
+  int action;     //the action to be taken for this item
+  int slot1 = 0;      //is the item in an inventory slot? 
+  boolean alive = true;     //is the item alive? (dead means it was used)
+
+  Ball(color tc, int tempx, int tempy, int taction) {     //taking inputs
+    x = tempx;
+    y = tempy;
+    c = tc;
+    action = taction;
+  }
+
+  void draw() {
+    if (alive==true) {     //draw the item if it is alive
+      fill(c);     //draw it with the input color
+      stroke(c);
+      ellipseMode(CENTER);     //draw circles with the coord being at the center(this is default I think, but i do it to be shure)
+      if (pause == true) {     //draw it if it is paused
+        ellipse(x, y, 75, 75);
+      } else if (pause == false && place<6) {     //or draw it if it is not paused and in the hotbar
+        ellipse(x, y, 75, 75);
+      }
+      if (slot[slot1] == true) {     //if the slot that the item is in becomes active, execute this items action
+        slot[slot1] = false;
+        alive = false;
+        m = millis();
+        Action = action;
+      }
+    }
+  }
+
+  void update() {
+    if (alive==true) {     //do this if it is alive
+      qx = abs(mouseX-x);     //distance between the mouse and the center of the circle/item
+      qy = abs(mouseY-y);
+      if (qx<=(75/2) && qy<=(75/2)  && open == true) {     //if the mouse if hovering above the item and it is not currentlu holding anything, pick up the item
+        inside = true;
+        open = false;
+      }
+      if (mpressed == true && inside == true) {     //if the mouse is holding this item, draw it where the mouse is
+        isTaken[place] = false;
+        x = mouseX;
+        y = mouseY;
+      }
+
+      for (int i = 1; i<7; i++) {     //decides what row the mouse coord is in
+        int p = (i*100)-50;
+        if (mouseY>(z-50) && mouseY<=(z+50)) {
+          mY = p;
+        }
+      }
+      for (int i = 1; i<7; i++) {     //decides what collum the mouse coord is in
+        int p = (i*100)-50;
+        if (mouseX>(z-50) && mouseX<=(z+50)) {
+          mX = p;
+        }
+      }
+      mousePlace = ((((mY+50)/100)-1)*6)+(((mX+50)/100)-1);     //determind what slot the mouse is in
+
+      if (mpressed == false && isTaken[mousePlace] == false) {     //if that slot is open and the mouse is clicked, drop this item in that slot
+        inside = false;
+        open = true;
+        for (int i = 1; i<7; i++) {     //these 2 loops decides where the circle/item is
+          z = (i*100)-50;
+          if (x>(z-50) && x<=(z+50)) {
+            x = z;
+          }
+        }
+        for (int i = 1; i<7; i++) {
+          z = (i*100)-50;
+          if (y>(z-50) && y<=(z+50)) {
+            y = z;
+          }
+        }
+        place = ((((y+50)/100)-1)*6)+(((x+50)/100)-1);     //takes that value and decides the slot
+//        text(place, x+100, y);
+        if (place<6) {     //the slot become equ
+          slot1 = place;
+        }
+        isTaken[place] = true;     //now that slot is taken/ being used
+      }
+    }
+    if(keyPressed && (key == 'p'||key == 'P')){     //press p to bring the items back to life
+      alive = true;
+      x = int(random(0,600));
+      y = int(random(0,600));
+    }
+  }
+}
+
+
+void mousePressed() {     //when the mouse is pressed, it picks up/ drops an item depending un the mouse's current state
+  if (mpressed == false && pause == true) {
+    mpressed = true;
+  } else {
+    mpressed = false;
+    open = true;
+  }
+}
