@@ -1,0 +1,46 @@
+
+
+void setup() {
+  size(1200, 700);
+}
+
+int level = 0;
+boolean radius = false;
+boolean diameter = false;
+boolean Length = false;
+boolean Width = false;
+boolean circumference = false;
+boolean Height = false;
+boolean volume = false;
+boolean area = false;
+boolean perimeter = false;
+boolean surfaceArea = false;
+
+void draw() {
+  if (level == 0) {
+    background(150);
+    stroke(0);
+    noFill();
+    ellipse(125, 150, 125, 125);
+    ellipse(125, 150, 125, 50);
+    fill(0);
+    stroke(0);
+    textSize(35);
+    text("Sphere", 70, 68);
+  }
+  if(level == 1){
+    background(150);
+    textSize(150);
+    text("Sphere",325,150);
+    textSize(45);
+    text("Radius: ",100,250);
+  }
+}
+
+void mousePressed(){
+  if(level == 0){
+    if(abs(mouseX-125)<60 && abs(mouseY-150)<60){
+      level = 1;
+    }
+  }
+}
