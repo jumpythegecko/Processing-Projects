@@ -4,7 +4,7 @@ void setup() {
   size(1200, 700);
 }
 
-int level = 0;
+float level = 0;
 boolean radius = false;
 boolean diameter = false;
 boolean Length = false;
@@ -19,6 +19,11 @@ boolean surfaceArea = false;
 void draw() {
   if (level == 0) {
     background(150);
+    if(abs(mouseX-125)<60 && abs(mouseY-150)<60){
+      fill(200);
+      stroke(200);
+      ellipse(125, 150, 125, 125);
+    }
     stroke(0);
     noFill();
     ellipse(125, 150, 125, 125);
@@ -30,11 +35,141 @@ void draw() {
   }
   if(level == 1){
     background(150);
+    if(mouseX>85 && mouseX<260 && mouseY>300 && mouseY<375){     //radius
+      fill(200);
+      stroke(200);
+      rect(85,300,175,70,15);
+      if(mousePressed){
+        level = 1.1;
+      }
+    }
+    if(mouseX>385 && mouseX<690 && mouseY>400 && mouseY<475){     //SA
+      fill(200);
+      stroke(200);
+      rect(385,400,305,70,15);
+      if(mousePressed){
+        level = 1.2;
+      }
+    }
+    if(mouseX>135 && mouseX<483 && mouseY>550 && mouseY<625){     //c
+      fill(200);
+      stroke(200);
+      rect(135,550,347,70,15);
+      if(mousePressed){
+        level = 1.3;
+      }
+    }
+    if(mouseX>810 && mouseX<1000 && mouseY>550 && mouseY<625){     //volume
+      fill(200);
+      stroke(200);
+      rect(810,550,190,70,15);
+      if(mousePressed){
+        level = 1.4;
+      }
+    }
+    if(mouseX>935 && mouseX<1065 && mouseY>325 && mouseY<400){     //back
+      fill(200);
+      stroke(200);
+      rect(935,325,130,70,15);
+      if(mousePressed){
+        level = 0;
+      }
+    }
+    fill(0);
+    stroke(0);
     textSize(150);
     text("Sphere",325,150);
+    textSize(55);
+    text("What do you want to solve for?",200,250);
     textSize(45);
-    text("Radius: ",100,250);
+    text("Radius",100,350);
+    text("Surface Area",400,450);
+    text("Circumference",150,600);
+    text("Volume",825,600);
+    text("Back",950,375);
+    noFill();
+    rect(85,300,175,70,15);
+    rect(385,400,305,70,15);
+    rect(135,550,347,70,15);
+    rect(810,550,190,70,15);
+    rect(935,325,130,70,15);
   }
+  if(level == 1.1){     //radius
+    background(150);
+    if(mouseX>25 && mouseX<155 && mouseY>25 && mouseY<100){
+      fill(200);
+      stroke(200);
+      rect(25,25,130,75,15);
+      if(mousePressed){
+        level = 1;
+      }
+    }
+    fill(0);
+    stroke(0);
+    textSize(45);
+    text("Back",40,75);
+    stroke(0);
+    noFill();
+    rect(25,25,130,75,15);
+  }
+  if(level == 1.2){     //SA
+    background(150);
+    if(mouseX>25 && mouseX<155 && mouseY>25 && mouseY<100){
+      fill(200);
+      stroke(200);
+      rect(25,25,130,75,15);
+      if(mousePressed){
+        level = 1;
+      }
+    }
+    fill(0);
+    stroke(0);
+    textSize(45);
+    text("Back",40,75);
+    stroke(0);
+    noFill();
+    rect(25,25,130,75,15);
+  }
+  if(level == 1.3){     //c
+    background(150);
+    if(mouseX>25 && mouseX<155 && mouseY>25 && mouseY<100){
+      fill(200);
+      stroke(200);
+      rect(25,25,130,75,15);
+      if(mousePressed){
+        level = 1;
+      }
+    }
+    fill(0);
+    stroke(0);
+    textSize(45);
+    text("Back",40,75);
+    stroke(0);
+    noFill();
+    rect(25,25,130,75,15);
+  }
+  if(level == 1.4){     //volume
+    background(150);
+    if(mouseX>25 && mouseX<155 && mouseY>25 && mouseY<100){
+      fill(200);
+      stroke(200);
+      rect(25,25,130,75,15);
+      if(mousePressed){
+        level = 1;
+      }
+    }
+    fill(0);
+    stroke(0);
+    textSize(45);
+    text("Back",40,75);
+    stroke(0);
+    noFill();
+    rect(25,25,130,75,15);
+  }
+  stroke(0);
+  fill(0);
+  textSize(25);
+  text(mouseX+" : "+mouseY,100,300);
 }
 
 void mousePressed(){
