@@ -1,0 +1,661 @@
+import de.looksgood.ani.*;
+import de.looksgood.ani.easing.*;
+
+import g4p_controls.*;
+
+
+
+void setup() {
+  size(1201, 681);
+  smooth();
+  grid = new Box[wide+1][tall+1];
+  ground1 = new int[2560010];
+  walkable = new boolean[2560010];
+  player = new Player(60, 60);
+  bars = new Bar();
+
+  player1 = loadImage("player1.png");
+  grass = loadImage("grass.png");
+  dirt = loadImage("Rocks2.png");
+  grass = loadImage("grass.png");
+  grassSign = loadImage("grass_sign.png");
+  brick = loadImage("brick.png");
+  brickDoor = loadImage("brick_door.png");
+  grassBush = loadImage("grass_bush.png");
+  water = loadImage("water.jpeg");
+  grassFlower = loadImage("grass_flower.png");  
+  sand = loadImage("sand.jpg");
+  grassTreeB = loadImage("grass_treeB.png");
+  grassTreeT = loadImage("grass_treeT.png");
+  rocks = loadImage("dirtWall.png");
+  brickPath = loadImage("brick_path.png");
+  sandRock = loadImage("sand copy.png");
+
+  fence = loadImage("grass_fence_template.png");
+  fenceU = loadImage("grass_fence_up.png");
+  fenceD = loadImage("grass_fence_down.png");
+  fenceL = loadImage("grass_fence_left.png");
+  fenceR = loadImage("grass_fence_right.png");
+  fenceV = loadImage("grass_fence_V.png");
+  fenceH = loadImage("grass_fence_H.png");
+  fenceUR = loadImage("grass_fence_upR.png");
+  fenceLR = loadImage("grass_fence_downR.png");
+  fenceLL = loadImage("grass_fence_downL.png");
+  fenceUL = loadImage("grass_fence_upL.png");
+  fenceNU = loadImage("grass_fence_downH.png");
+  fenceND = loadImage("grass_fence_upH.png");
+  fenceNL = loadImage("grass_fence_Vright.png");
+  fenceNR = loadImage("grass_fence_Vleft.png");
+  fenceUDLR = loadImage("grass_fence_4.png");
+
+  ground1 = int( loadStrings("map.txt") );
+  walkable = boolean(loadStrings("walkable.txt"));
+  for (int i = 1; i<=wide; i++) {
+    for (int j = 1; j<=tall; j++) {
+      ti = (i*40)-40;
+      tj = (j*40)-40;
+      grid[i][j] = new Box(ti, tj, int(random(0, 255)));
+      //ground1[i*j] = grid[i][j].ground;
+      grid[i][j].ground = ground1[(wide*(j-1))+i];
+      grid[i][j].isWalkable = walkable[(wide*(j-1))+i];
+      grid[i][j].locx = i;
+      grid[i][j].locy = j;
+    }
+  }
+}
+
+Box[][] grid;
+int[] ground1;
+boolean[] walkable;
+int ti;
+int tj;
+
+PImage grass;
+PImage grassSign;
+PImage dirt;
+PImage brick;
+PImage water;
+PImage brickDoor;
+PImage grassBush;
+PImage grassFlower;
+PImage sand;
+PImage player1;
+PImage grassTreeB;
+PImage grassTreeT;
+PImage rocks;
+PImage brickPath;
+PImage sandRock;
+
+PImage fence;
+PImage fenceU;
+PImage fenceD;
+PImage fenceL;
+PImage fenceR;
+PImage fenceV;
+PImage fenceH;
+PImage fenceUR;
+PImage fenceLR;
+PImage fenceLL;
+PImage fenceUL;
+PImage fenceNU;
+PImage fenceND;
+PImage fenceNL;
+PImage fenceNR;
+PImage fenceUDLR;
+
+Player player;
+Bar bars;
+boolean u = false;
+boolean d = false;
+boolean l = false;
+boolean r = false;
+int map = 1;     //which map to display
+int px;
+int py;
+int plocx = 2;     //player location on the grid
+int plocy = 2;
+int wide = 1600;
+int tall = 1600;
+int gridlocx1 = 0;
+int gridlocy1 = 0;
+int gridlocx2 = 30;
+int gridlocy2 = 17;
+int health = 100;
+boolean pause = false;
+int pm = 0;
+int optionNum = 1;
+int optionPos = 0;
+int om = 0;
+int speed = 13;
+boolean justpaused = true;
+int pground = 0;
+
+void draw() {
+  if(pause == false){
+  background(200);
+  }
+  for (int i = 1; i<=wide; i++) {
+    for (int j = 1; j<=tall; j++) {
+      grid[i][j].display();
+    }
+  }
+  if (keyPressed && (key == 'q'||key == 'Q') && millis()-pm>300) {
+    if (pause == true) {
+      pause = false;
+      justpaused = true;
+    } else if (pause == false) {
+      pause = true;
+    }
+    pm = millis();
+  }
+  if (pause == false) {
+    player.move();
+  player.display();
+  bars.healthBar();
+  }
+  if (pause == true) {
+    fill(200);
+    stroke(0);
+    rect(1000, 50, 200, 580);
+    textSize(40);
+    stroke(0);
+    fill(0);
+    text("Options", 1020, 100);
+    textSize(30);
+    text("something", 1037, 150);
+    text("something", 1037, 200);
+    text("something", 1037, 250);
+    text("something", 1037, 300);
+    text("something", 1037, 350);
+    text("something", 1037, 400);
+    text("Inventory", 1037, 450);
+    text("Save game", 1037, 500);
+    text("Load game", 1037, 550);
+    text("Quit", 1037, 600);
+    optionPos = (optionNum*50)+90;
+    triangle(1020, optionPos-15, 1030, optionPos, 1020, optionPos+15);
+    if (keyPressed && millis()-om>190) {
+      if ((keyCode == UP ||key == 'w'||key == 'W') && optionNum>1) {
+        optionNum = optionNum - 1;
+      }
+      if ((keyCode == DOWN ||key == 's'||key == 'S') && optionNum<10) {
+        optionNum = optionNum + 1;
+      }
+      om = millis();
+    }
+    if (justpaused == true) {
+      fill(222, 185, 115);
+      noStroke();
+      rect(20, 20, 960, 640);
+      for (int i = 1; i<=wide/2; i++) {
+        for (int j = 1; j<=tall/3; j++) {
+          pground = grid[i][j].ground;
+          if(grid[i][j].found == false){
+            fill(0);
+            stroke(0);
+          }
+          else 
+          if((abs(px-grid[i][j].x))+(abs(py-grid[i][j].y))<=175 && (abs(px-grid[i][j].x)<=120) && (abs(py-grid[i][j].y)<=120)){
+            fill(255,0,0);
+            stroke(255,0,0);
+          }
+          else if(pground == 0){
+            fill(112,26,26);
+            stroke(112,26,26);
+          }
+          else if(pground == 1){
+            fill(40,148,44);
+            stroke(40,148,44);
+          }
+          else if(pground == 2){
+            fill(145,104,26);
+            stroke(145,104,26);
+          }
+          else if(pground == 3){
+            fill(40,148,44);
+            stroke(40,148,44);
+          }
+          else if(pground == 4){
+            fill(112,0,26);
+            stroke(112,0,26);
+          }
+          else if(pground == 5){
+            fill(18,56,16);
+            stroke(18,56,16);
+          }
+          else if(pground == 6){
+            fill(8,69,209);
+            stroke(8,69,209);
+          }
+          else if(pground == 7){
+            fill(40,148,44);
+            stroke(40,148,44);
+          }
+          else if(pground == 8){
+            fill(255,175,122);
+            stroke(255,175,122);
+          }
+          else if(pground == 9){
+            fill(94,54,34);
+            stroke(94,54,34);
+          }
+          else if(pground == 10){
+            fill(17,97,13);
+            stroke(17,97,13);
+          }
+          else if(pground == 11){
+            fill(94,54,34);
+            stroke(94,54,34);
+          }
+          else if(pground == 12){
+            fill(255);
+            stroke(255);
+          }
+          else if(pground == 13){
+            fill(163,12,39);
+            stroke(163,112,39);
+          }
+//          stroke(0);
+//          fill(0);
+          point(i+90, j+65);
+        }
+      }
+      justpaused = false;
+    }
+  }
+  if (keyPressed && (key == 'p'||key == 'P')) {
+    for (int i = 1; i<=wide; i++) {
+      for (int j = 1; j<=tall; j++) {
+        if (map == 1) {
+          ground1[(wide*(j-1))+i] = grid[i][j].ground;
+          walkable[(wide*(j-1))+i] = grid[i][j].isWalkable;
+        }
+      }
+    }
+    saveStrings("map.txt", str(ground1));
+    saveStrings("walkable.txt", str(walkable));
+  }
+  //  fill(255,0,0);
+  //  noStroke();
+  //  text(plocy,90,100);
+  //  text(plocx,90,60);
+}
+
+
+
+
+public class Bar{
+  
+  int z;
+  
+  Bar(){}
+  
+  void healthBar(){
+    for(int i = 0; i<health; i++){
+      z = (i*2)+75;
+      noFill();
+      stroke(0);
+      rect(74,9,202,14);
+      fill(255,0,0);
+      stroke(255,0,0);
+      rect(z,10,2,12);
+    }
+  }
+  
+  
+  
+}
+
+
+
+public class Box {
+  int x;
+  int y;
+  float c;
+  boolean isWalkable = true;
+  int ground = 1;
+  boolean found = false;
+  int locx;
+  int locy;
+
+  Box(int tempx, int tempy, float tempc) {
+    x = tempx;
+    y = tempy;
+    c = tempc;
+  }
+
+  void display() {
+    if (pause == false) {
+      //    imageMode(CORNER);
+      if (x>-50 && y>-50 && x<1250 && y<750) {
+        imageMode(CORNER);
+        if (ground == 1) {
+          image(grass, x, y);
+          isWalkable = true;
+        } else if (ground == 2) {
+          image(dirt, x, y);
+          isWalkable = true;
+        } else if (ground == 0) {
+          image(brick, x, y);
+          isWalkable = false;
+        } else if (ground == 3) {
+          image(grassSign, x, y);
+          isWalkable = false;
+        } else if (ground == 4) {
+          image(brickDoor, x, y);
+          isWalkable = true;
+        } else if (ground == 5) {
+          image(grassBush, x, y);
+          isWalkable = false;
+        } else if (ground == 6) {
+          image(water, x, y);
+          isWalkable = false;
+        } else if (ground == 7) {
+          image(grassFlower, x, y);
+          isWalkable = true;
+        } else if (ground == 8) {
+          image(sand, x, y);
+          isWalkable = true;
+        } else if (ground == 9) {
+          image(grassTreeB, x, y);
+          isWalkable = false;
+        } else if (ground == 10) {
+          image(grassTreeT, x, y);
+          isWalkable = false;
+        } else if (ground == 11) {
+          image(rocks, x, y);
+        } else if (ground == 12) {
+          isWalkable = false;
+          if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground != 12) {
+            image(fence, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceUDLR, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceNR, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceV, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceH, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground != 12) { 
+            image(fenceND, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground == 12) { 
+            image(fenceNU, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceNL, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceD, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceU, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceL, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceR, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceLL, x, y);
+          } else if (grid[locx+1][locy].ground == 12 && grid[locx-1][locy].ground != 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceUL, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground != 12 && grid[locx][locy+1].ground == 12) {
+            image(fenceUR, x, y);
+          } else if (grid[locx+1][locy].ground != 12 && grid[locx-1][locy].ground == 12 && grid[locx][locy-1].ground == 12 && grid[locx][locy+1].ground != 12) {
+            image(fenceLR, x, y);
+          }
+        } else if (ground == 13) {
+          image(sandRock, x, y);
+        } else if (ground == 14) {
+          image(grass, x, y);
+        }
+        //(abs(px-x)<150) && (abs(py-y)<150)
+        if ((abs(px-x))+(abs(py-y))<=400 && (abs(px-x)<=300) && (abs(py-y)<=300)) {
+          found = true;
+        }
+        if (found == false) {
+          fill(0);
+          stroke(0);
+          rect(x, y, 40, 40);
+        } else if ((abs(px-x))+(abs(py-y))<=300 && (abs(px-x)<=200) && (abs(py-y)<=200)) {
+          fill(0, 0, 0, 120);
+          noStroke();
+          rect(x, y, 40, 40);
+        } else if ((abs(px-x))+(abs(py-y))<=400 && (abs(px-x)<=300) && (abs(py-y)<=300)) {
+          fill(0, 0, 0, 155);
+          noStroke();
+          rect(x, y, 40, 40);
+        } else {
+          fill(0, 0, 0, 190);
+          noStroke();
+          rect(x, y, 40, 40);
+        }
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'u'||key == 'U')) {
+        c = 0;
+        ground = 0;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'g'||key == 'G')) {
+        ground = 1;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'h'||key == 'H')) {
+        ground = 2;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'j'||key == 'J')) {
+        ground = 3;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'k'||key == 'K')) {
+        ground = 4;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'l'||key == 'L')) {
+        ground = 5;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'm'||key == 'M')) {
+        ground = 6;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'n'||key == 'N')) {
+        ground = 7;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'b'||key == 'B')) {
+        ground = 8;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'v'||key == 'V')) {
+        ground = 9;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'f'||key == 'F')) {
+        ground = 10;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'c'||key == 'C')) {
+        ground = 11;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'x'||key == 'X')) {
+        ground = 12;
+        isWalkable = true;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'z'||key == 'Z')) {
+        ground = 13;
+        isWalkable = false;
+      }
+      if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'q'||key == 'Q')) {
+        ground = 14;
+        isWalkable = true;
+      }
+    }
+  }
+}
+
+
+
+
+
+public void UP(){
+  
+}
+
+int mmm = 0;
+
+public void DOWN(){
+  
+}
+
+
+public void LEFT(){
+  
+}
+
+
+public void RIGHT(){
+  
+}
+
+
+
+public class Player {
+
+  int m = 0;
+  int mm = 0;
+  int counter = 0;
+
+  Player(int tempx, int tempy) {
+    px = tempx;
+    py = tempy;
+  }
+
+  void display() {
+//    stroke(255, 0, 0);
+//    fill(255, 0, 0, 150);
+//    ellipse(px, py-7, 30, 30);
+    imageMode(CENTER);
+    image(player1, px, py-7);
+  }
+
+  void move() {
+    if (millis()-m>speed) {
+      if (u == true && plocy>1) {
+        if (map == 1) {
+          if (grid[plocx][plocy-1].isWalkable == true) {
+            if (py<=250 && plocy<gridlocy1+7 && plocy>6) {
+              for (int i = 1; i<=wide; i++) {
+                for (int j = 1; j<=tall; j++) {
+                  grid[i][j].y = grid[i][j].y + 40;
+                }
+              }
+              gridlocy1 = gridlocy1 - 1;
+              gridlocy2 = gridlocy2 - 1;
+              plocy = plocy - 1;
+            } else {
+              py = py - 40;
+              plocy = plocy - 1;
+            }
+          }
+        }
+      } else if (d == true && plocy<tall) {
+        if (map == 1) {
+          if (grid[plocx][plocy+1].isWalkable == true) {
+            if (py>=430 && plocy>gridlocy2-7 && plocy<tall-6) {
+              for (int i = 1; i<=wide; i++) {
+                for (int j = 1; j<=tall; j++) {
+                  grid[i][j].y = grid[i][j].y - 40;
+                }
+              }
+              gridlocy1 = gridlocy1 + 1;
+              gridlocy2 = gridlocy2 + 1;
+              plocy = plocy + 1;
+            } else {
+              py = py + 40;
+              plocy = plocy + 1;
+            }
+          }
+        }
+      } else if (l == true && plocx>1) {
+        if (map == 1) {
+          if (grid[plocx-1][plocy].isWalkable == true) {
+            if (px<=300 && plocx<gridlocx1+9 && plocx>8) {
+              for (int i = 1; i<=wide; i++) {
+                for (int j = 1; j<=tall; j++) {
+                  grid[i][j].x = grid[i][j].x + 40;
+                }
+              }
+              gridlocx1 = gridlocx1 - 1;
+              gridlocx2 = gridlocx2 - 1;
+              plocx = plocx - 1;
+            } else {
+              px = px - 40;
+              plocx = plocx - 1;
+            }
+          }
+        }
+        } else if (r == true && plocx<wide) {
+          if (map == 1) {
+            if (grid[plocx+1][plocy].isWalkable == true) {
+              if (px>=900 && plocx>gridlocx2-9 && plocx<wide-8) {
+                for (int i = 1; i<=wide; i++) {
+                  for (int j = 1; j<=tall; j++) {
+                    grid[i][j].x = grid[i][j].x - 40;
+                  }
+                }
+                gridlocx1 = gridlocx1 + 1;
+                gridlocx2 = gridlocx2 + 1;
+                plocx = plocx + 1;
+              } else {
+                px = px + 40;
+                plocx = plocx + 1;
+              }
+            }
+          }
+        }
+        m = millis();
+      }
+    }
+  }
+
+  void keyPressed() {
+    if (key == 'w'||key == 'W'||keyCode == UP) {
+      u = true;
+//      d = false;
+//      l = false;
+//      r = false;
+    }
+    if (key == 's'||key == 'S'||keyCode == DOWN) {
+//      u = false;
+      d = true;
+//      l = false;
+//      r = false;
+    }
+    if (key == 'a'||key == 'A'||keyCode == LEFT) {
+//      u = false;
+//      d = false;
+      l = true;
+//      r = false;
+    }
+    if (key == 'd'||key == 'D'||keyCode == RIGHT) {
+//      u = false;
+//      d = false;
+//      l = false;
+      r = true;
+    }
+  }
+
+
+
+  void keyReleased() {
+    if (key == 'w'||key == 'W'||keyCode == UP) {
+      u = false;
+    }
+    if (key == 's'||key == 'S'||keyCode == DOWN) {
+      d = false;
+    }
+    if (key == 'a'||key == 'A'||keyCode == LEFT) {
+      l = false;
+    }
+    if (key == 'd'||key == 'D'||keyCode == RIGHT) {
+      r = false;
+    }
+  }
