@@ -1,0 +1,426 @@
+import de.looksgood.ani.*;
+import de.looksgood.ani.easing.*;
+
+import g4p_controls.*;
+
+
+
+void setup() {
+  size(1200, 680);
+  smooth();
+  grid = new Box[31][18];
+  grid2 = new Box[31][18];
+  ground1 = new int[510];
+  walkable = new boolean[510];
+  player = new Player(60, 60);
+  dirt = loadImage("dirt.png");
+  grass = loadImage("grass.png");
+  grassSign = loadImage("grass_sign.png");
+  brick = loadImage("brick.png");
+  player1_front = loadImage("player1_maybe.png");
+  player1_back = loadImage("player1_back.png");
+  player1_left = loadImage("player1_left.png");
+  player1_right = loadImage("player1_right.png");
+  player1_walkF1 = loadImage("player_1_walk_forward_1.png");
+  player1_walkF2 = loadImage("player_1_walk_forward_2.png");
+  brickDoor = loadImage("brick_door.png");
+  grassBush = loadImage("grass_bush.png");
+  water = loadImage("water.jpeg");
+  grassFlower = loadImage("grass_flower.png");
+  ground1 = int( loadStrings("map.txt") );
+  walkable = boolean(loadStrings("walkable.txt"));
+  ground2 = int( loadStrings("map2.txt") );
+  walkable2 = boolean(loadStrings("walkable2.txt"));
+  for (int i = 1; i<=30; i++) {
+    for (int j = 1; j<=17; j++) {
+      ti = (i*40)-40;
+      tj = (j*40)-40;
+      grid[i][j] = new Box(ti, tj, ((i*j*1.5)+150));
+      grid2[i][j] = new Box(ti, tj, ((i*j*1.5)+150));
+      //ground1[i*j] = grid[i][j].ground;
+      grid[i][j].ground = ground1[(30*(j-1))+i];
+      grid[i][j].isWalkable = walkable[(30*(j-1))+i];
+      grid2[i][j].ground = ground2[(30*(j-1))+i];
+      grid2[i][j].isWalkable = walkable2[(30*(j-1))+i];
+    }
+  }
+  //saveStrings("map.txt", str(ground1));
+}
+
+Box[][] grid;
+Box[][] grid2;
+int[] ground1;
+boolean[] walkable;
+int[] ground2;
+boolean[] walkable2;
+int ti;
+int tj;
+PImage grass;
+PImage grassSign;
+PImage dirt;
+PImage brick;
+PImage player1_front;
+PImage player1_back;
+PImage player1_right;
+PImage player1_left;
+PImage player1_walkF1;
+PImage player1_walkF2;
+PImage water;
+PImage brickDoor;
+PImage grassBush;
+PImage grassFlower;
+Player player;
+boolean u = false;
+boolean d = false;
+boolean l = false;
+boolean r = false;
+boolean up = false;
+boolean down = true;
+boolean left = false;
+boolean right = false;
+int map = 1;     //which map to display
+int px;
+int py;
+int plocx = 2;     //player location on the grid
+int plocy = 2;
+int tm = 0;     //transition millis
+boolean trans = false;    //for transitoning between maps
+
+void draw() {
+  background(200);
+  if (map == 1) {
+    for (int i = 1; i<=30; i++) {
+      for (int j = 1; j<=17; j++) {
+        grid[i][j].display();
+      }
+    }
+    if (trans == true) {
+      if (millis()-tm >= 300 && u == true) {
+        map = 2;
+        plocy = 17;
+        py = 660;
+        trans = false;
+      }
+      if (keyPressed && (l||r||d)) {
+        trans = false;
+      }
+    } else if ((plocx == 15||plocx == 16) && plocy == 1 && u == true) {
+      trans = true;
+      tm = millis();
+    }
+  }
+  if (map == 2) {
+    for (int i = 1; i<=30; i++) {
+      for (int j = 1; j<=17; j++) {
+        grid2[i][j].display();
+      }
+    }
+
+
+    if (trans == true) {
+      if (millis()-tm >= 300 && d == true) {
+        map = 1;
+        plocy = 1;
+        py = 20;
+        trans = false;
+      }
+      if (keyPressed && (l||r||u)) {
+        trans = false;
+      }
+    } else if ((plocx == 15||plocx == 16) && plocy == 17 && d == true) {
+      trans = true;
+      tm = millis();
+    }
+  }
+  player.move();
+  player.display();
+
+  if (keyPressed && (key == 'p'||key == 'P')) {
+    for (int i = 1; i<=30; i++) {
+      for (int j = 1; j<=17; j++) {
+        if (map == 1) {
+          ground1[(30*(j-1))+i] = grid[i][j].ground;
+          walkable[(30*(j-1))+i] = grid[i][j].isWalkable;
+        } else if (map == 2) {
+          ground2[(30*(j-1))+i] = grid2[i][j].ground;
+          walkable2[(30*(j-1))+i] = grid2[i][j].isWalkable;
+        }
+      }
+    }
+    if (map == 1) {
+      saveStrings("map.txt", str(ground1));
+      saveStrings("walkable.txt", str(walkable));
+    } else if (map == 2) {
+      saveStrings("map2.txt", str(ground2));
+      saveStrings("walkable2.txt", str(walkable2));
+    }
+  }
+}
+
+
+
+
+public class Box {
+  int x;
+  int y;
+  float c;
+  boolean isWalkable = true;
+  int ground = 1;
+
+  Box(int tempx, int tempy, float tempc) {
+    x = tempx;
+    y = tempy;
+    c = tempc;
+  }
+
+  void display() {
+    imageMode(CORNER);
+    if (ground == 1) {
+      image(grass, x, y);
+    } else if (ground == 2) {
+      image(dirt, x, y);
+    } else if (ground == 0){
+      image(brick,x,y);
+      isWalkable = false;
+    } else if (ground == 3){
+      image(grassSign,x,y);
+    }
+    else if (ground == 4){
+      image(brickDoor,x,y);
+    }
+    else if (ground == 5){
+      image(grassBush,x,y);
+    }
+    else if (ground == 6){
+      image(water,x,y);
+    }
+    else if (ground == 7){
+      image(grassFlower,x,y);
+    }
+//    if (isWalkable == false) {
+//      noFill();
+//      stroke(0);
+//      rect(x, y, 40, 40);
+//    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'u'||key == 'U')) {
+      c = 0;
+      ground = 0;
+      isWalkable = false;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'g'||key == 'G')) {
+      ground = 1;
+      isWalkable = true;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'h'||key == 'H')) {
+      ground = 2;
+      isWalkable = true;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'j'||key == 'J')) {
+      ground = 3;
+      isWalkable = false;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'k'||key == 'K')) {
+      ground = 4;
+      isWalkable = true;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'l'||key == 'L')) {
+      ground = 5;
+      isWalkable = false;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'm'||key == 'M')) {
+      ground = 6;
+      isWalkable = false;
+    }
+    if (mousePressed && mouseX>x && mouseX<x+40 && mouseY>y && mouseY<y+40 && (key == 'n'||key == 'N')) {
+      ground = 7;
+      isWalkable = true;
+    }
+  }
+  
+  void makeGrass(){
+    ground = 1;
+  }
+}
+
+
+
+
+
+public void UP(){
+  
+}
+
+int mmm = 0;
+
+public void DOWN(){
+  
+}
+
+
+public void LEFT(){
+  
+}
+
+
+public void RIGHT(){
+  
+}
+
+
+
+public class Player {
+
+  int m = 0;
+  int mm = 0;
+  int counter = 0;
+
+  Player(int tempx, int tempy) {
+    px = tempx;
+    py = tempy;
+  }
+
+  void display() {
+    //    stroke(255,0,0);
+    //    fill(255,0,0);
+    //    ellipse(x, y, 30, 30);
+    imageMode(CENTER);
+    if(u){
+      up = true;
+      down = false;
+      left = false;
+      right = false;
+    }
+    if(d){
+      up = false;
+      down = true;
+      left = false;
+      right = false;
+    }
+    if(l){
+      up = false;
+      down = false;
+      left = true;
+      right = false;
+    }
+    if(r){
+      up = false;
+      down = false;
+      left = false;
+      right = true;
+    }
+    if(up){
+      image(player1_back, px, py-7);
+    }
+    if(down){
+      image(player1_front, px, py-7);
+    }
+    if(left){
+      image(player1_left, px, py-7);
+    }
+    if(right){
+      image(player1_right, px, py-7);
+    }
+    //image(player1_front, px, py-7);
+  }
+
+  void move() {
+    if (millis()-m>135) {
+      if (u == true && plocy>1) {
+        if (map == 1) {
+          if (grid[plocx][plocy-1].isWalkable == true) {
+            py = py - 40;
+            plocy = plocy - 1;
+          }
+        }
+        if (map == 2) {
+          if (grid2[plocx][plocy-1].isWalkable == true) {
+            py = py - 40;
+            plocy = plocy - 1;
+          }
+        }
+      } else if (d == true && plocy<17) {
+        if (map == 1) {
+          if (grid[plocx][plocy+1].isWalkable == true) {
+            py = py + 40;
+            plocy = plocy + 1;
+          }
+        }
+        if (map == 2) {
+          if (grid2[plocx][plocy+1].isWalkable == true) {
+            py = py + 40;
+            plocy = plocy + 1;
+          }
+        }
+      } else if (l == true && plocx>1) {
+        if (map == 1) {
+          if (grid[plocx-1][plocy].isWalkable == true) {
+            px = px - 40;
+            plocx = plocx - 1;
+          }
+        }
+        if (map == 2) {
+          if (grid2[plocx-1][plocy].isWalkable == true) {
+            px = px - 40;
+            plocx = plocx - 1;
+          }
+        }
+      } else if (r == true && plocx<30) {
+        if (map == 1) {
+          if (grid[plocx+1][plocy].isWalkable == true) {
+            px = px + 40;
+            plocx = plocx + 1;
+          }
+        }
+        if (map == 2) {
+          if (grid2[plocx+1][plocy].isWalkable == true) {
+            px = px + 40;
+            plocx = plocx + 1;
+          }
+        }
+      }
+      m = millis();
+    }
+  }
+}
+
+void keyPressed() {
+  if (key == 'w'||key == 'W'||keyCode == UP) {
+    u = true;
+    d = false;
+    l = false;
+    r = false;
+  }
+  if (key == 's'||key == 'S'||keyCode == DOWN) {
+    u = false;
+    d = true;
+    l = false;
+    r = false;
+  }
+  if (key == 'a'||key == 'A'||keyCode == LEFT) {
+    u = false;
+    d = false;
+    l = true;
+    r = false;
+  }
+  if (key == 'd'||key == 'D'||keyCode == RIGHT) {
+    u = false;
+    d = false;
+    l = false;
+    r = true;
+  }
+}
+
+void keyReleased() {
+  if (key == 'w'||key == 'W'||keyCode == UP) {
+    u = false;
+  }
+  if (key == 's'||key == 'S'||keyCode == DOWN) {
+    d = false;
+  }
+  if (key == 'a'||key == 'A'||keyCode == LEFT) {
+    l = false;
+  }
+  if (key == 'd'||key == 'D'||keyCode == RIGHT) {
+    r = false;
+  }
+}
